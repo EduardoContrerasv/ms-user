@@ -1,0 +1,22 @@
+package cl.duoc.ms_user.dto;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+
+@Getter @Setter
+@AllArgsConstructor @NoArgsConstructor
+public class UserResponseDto {
+
+    @NotNull
+    Long id;
+
+    @NotEmpty
+    @Email
+    String email;
+}
