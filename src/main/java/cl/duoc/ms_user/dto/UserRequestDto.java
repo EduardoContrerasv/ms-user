@@ -16,4 +16,5 @@ public class UserRequestDto {
 
     @NotEmpty(message = "Debe ingresar una contraseña")
     String password;
+
 }

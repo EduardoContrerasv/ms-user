@@ -8,6 +8,8 @@ import cl.duoc.ms_user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -17,12 +19,13 @@ public class UserServiceImpl implements UserService {
     private UserResponseDto toDto(User user) {
         return new UserResponseDto(
                 user.getId(),
-                user.getEmail()
+                user.getEmail(),
+                user.getRegisterDate()
         );
     }
 
     private User toEntity(UserRequestDto dto){
-        return new User(null, dto.getEmail(), dto.getPassword());
+        return new User(null, dto.getEmail(), dto.getPassword(), LocalDateTime.now());
     }
 
     @Override
