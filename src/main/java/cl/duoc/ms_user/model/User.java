@@ -1,15 +1,8 @@
 package cl.duoc.ms_user.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -23,9 +16,18 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "email", nullable = false)
     private String email;
 
+    @Column(name = "password", nullable = false)
     private String password;
 
+    @Column(name = "register_date", nullable = false)
     private LocalDateTime registerDate;
+
+    @Column(name = "account_status", nullable = false)
+    private String accountStatus = "ACTIVE";
+
+    @Column(name = "accoount_level", nullable = false)
+    private int accountLevel = 1;
 }
