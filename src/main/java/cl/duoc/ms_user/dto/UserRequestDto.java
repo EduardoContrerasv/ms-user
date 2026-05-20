@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Getter @Setter
-@AllArgsConstructor @NoArgsConstructor @RequiredArgsConstructor
+@AllArgsConstructor @NoArgsConstructor
 public class UserRequestDto {
     @NotBlank(message = "Debe ingresar un correo")
     @Email(message = "Debe ingresar un formato de email válido")
