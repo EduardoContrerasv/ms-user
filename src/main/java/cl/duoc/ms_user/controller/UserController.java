@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1/user")
 public class UserController {
     @Autowired
 
@@ -34,36 +34,36 @@ public class UserController {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/getUserId/{id}")
     public ResponseEntity<UserResponseDto> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
-    @GetMapping("/email/{email}")
+    @GetMapping("/getEmail/{email}")
     public ResponseEntity<UserResponseDto> findByEmail(@PathVariable String email) {
         return ResponseEntity.ok(service.findByEmail(email));
     }
 
-    @GetMapping("/status/{status}")
+    @GetMapping("/getstatus/{status}")
     public ResponseEntity<List<UserResponseDto>> findByStatus(@PathVariable String status) {
         List<UserResponseDto> users = service.findByAccountStatus(status);
         return ResponseEntity.ok(users);
 
     }
 
-    @PutMapping("/email/{id}")
+    @PutMapping("/updateEmail/{id}")
     public ResponseEntity<UserResponseDto> updateEmail(@PathVariable Long id, @Valid @RequestBody UserRequestDto dto) {
         UserResponseDto user = service.updateEmail(id, dto.getEmail());
         return ResponseEntity.ok(user);
     }
 
-    @PutMapping("/password/{id}")
+    @PutMapping("/updatePassword/{id}")
     public ResponseEntity<UserResponseDto> updatePassword(@PathVariable Long id, @Valid @RequestBody UserRequestDto dto) {
         UserResponseDto user = service.updatePassword(id, dto.getPassword());
         return ResponseEntity.ok(user);
     }
 
-    @PutMapping("/status/{id}")
+    @PutMapping("/updateStatus/{id}")
     public ResponseEntity<UserResponseDto> updateStatus(@PathVariable Long id, @PathVariable String status) {
         UserResponseDto user = service.updateAccountStatus(id, status);
         return ResponseEntity.ok(user);
