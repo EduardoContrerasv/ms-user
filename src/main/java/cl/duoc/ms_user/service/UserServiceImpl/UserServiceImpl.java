@@ -5,6 +5,8 @@ import cl.duoc.ms_user.dto.UserResponseDto;
 import cl.duoc.ms_user.model.User;
 import cl.duoc.ms_user.repository.UserRepository;
 import cl.duoc.ms_user.service.UserService;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +29,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private User toEntity(UserRequestDto dto){
-        return new User(null, dto.getEmail(), dto.getPassword(), LocalDateTime.now(),"Active",1);
+        return new User(null, dto.getEmail(), dto.getPassword(), LocalDateTime.now(),"Active",1,0);
     }
 
     @Override
@@ -113,5 +115,19 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Usuario con ID " + id + " no encontrado");
         }
         repository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void goldUpdate(Long userId, int amountToAdd) {
+        User user = repository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario con ID " + userId + " no encontrado"));
+
+        if (!"ACTIVE".equalsIgnoreCase(user.getAccountStatus())) {
+            throw new IllegalStateException("No puede agregar oro a una cuenta suspendida o eliminada");
+        }
+
+        user.setGold(user.getGold() + amountToAdd);
+        repository.save(user);
     }
 }
