@@ -30,4 +30,7 @@ public class User {
 
     @Column(name = "accoount_level", nullable = false)
     private int accountLevel = 1;
+
+    @Column(name = "gold", nullable = false)
+    private int gold = 0;
 }
