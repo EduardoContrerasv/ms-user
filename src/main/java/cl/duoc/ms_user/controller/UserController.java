@@ -1,6 +1,5 @@
 package cl.duoc.ms_user.controller;
 
-import cl.duoc.ms_user.dto.GoldRequestDto;
 import cl.duoc.ms_user.dto.UserRequestDto;
 import cl.duoc.ms_user.dto.UserResponseDto;
 import cl.duoc.ms_user.service.UserService;
@@ -74,15 +73,6 @@ public class UserController {
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {
         service.deleteById(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/gold/{userId}")
-    public ResponseEntity<Void> addGoldToUser(
-            @PathVariable Long userId,
-            @Valid @RequestBody GoldRequestDto goldRequestDto) {
-
-        service.goldUpdate(userId, goldRequestDto.getAmountToUpdate());
-        return ResponseEntity.ok().build();
     }
 
 }

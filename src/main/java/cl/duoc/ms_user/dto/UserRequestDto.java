@@ -14,4 +14,7 @@ public class UserRequestDto {
     @NotBlank(message = "Debe ingresar una contraseña")
     String password;
 
+    @NotBlank(message = "Debe ingresar un nombre de usuario")
+    private String username;
+
 }
