@@ -1,6 +1,6 @@
 package cl.duoc.ms_user.dto;
 
-import jakarta.validation.constraints.Email;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -16,8 +16,7 @@ public class UserResponseDto {
     Long id;
 
     @NotBlank
-    @Email
-    String email;
+    private String username;
 
     LocalDateTime registerDate;
 

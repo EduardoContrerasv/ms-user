@@ -19,6 +19,9 @@ public class User {
     @Column(name = "email", nullable = false)
     private String email;
 
+    @Column(name = "username", nullable = false, unique = true)
+    private String username;
+
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -28,9 +31,7 @@ public class User {
     @Column(name = "account_status", nullable = false)
     private String accountStatus = "ACTIVE";
 
-    @Column(name = "accoount_level", nullable = false)
+    @Column(name = "account_level", nullable = false)
     private int accountLevel = 1;
 
-    @Column(name = "gold", nullable = false)
-    private int gold = 0;
 }
