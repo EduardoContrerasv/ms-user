@@ -16,5 +16,4 @@ public interface UserService {
     UserResponseDto updatePassword(Long id, String newPassword);
     UserResponseDto updateAccountStatus(Long id, String newStatus);
     void deleteById(Long id);
-    void goldUpdate(Long userId, int amountToUpdate);
 }
