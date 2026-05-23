@@ -6,17 +6,17 @@ import cl.duoc.ms_user.model.User;
 import cl.duoc.ms_user.repository.UserRepository;
 import cl.duoc.ms_user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
-
     private UserResponseDto toDto(User user) {
         return new UserResponseDto(
                 user.getId(),
@@ -32,6 +32,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto register(UserRequestDto dto) {
+        log.info("Register User");
         if (repository.findByEmail(dto.getEmail()).isPresent()) {
             throw new RuntimeException("El email ya existe");
         }
@@ -42,6 +43,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto login(UserRequestDto dto) {
+        log.info("Login User");
         User user = repository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new RuntimeException("Email ingresado inválido"));
 
@@ -54,11 +56,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponseDto> findAll() {
+        log.info("Find All Users");
         return repository.findAll().stream().map(this::toDto).toList();
     }
 
     @Override
     public UserResponseDto findById(Long id) {
+        log.info("Find User by ID {}", id);
         return repository.findById(id)
                 .map(this::toDto)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -84,6 +88,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto updateEmail(Long id, String newEmail) {
+        log.info("Update User by ID {}", id);
         User user = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         user.setEmail(newEmail);
@@ -92,6 +97,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto updatePassword(Long id, String newPassword) {
+        log.info("Update User by ID {}", id);
         User user = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         user.setPassword(newPassword);
@@ -101,6 +107,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto updateAccountStatus(Long id, String newStatus) {
+        log.info("Update User by ID {}", id);
         User user = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         user.setAccountStatus(newStatus);
@@ -109,6 +116,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteById(Long id) {
+        log.info("Delete User by ID {}", id);
         if (!repository.existsById(id)) {
             throw new RuntimeException("Usuario con ID " + id + " no encontrado");
         }
