@@ -1,22 +1,32 @@
 package cl.duoc.ms_user.service.UserServiceImpl;
 
+import cl.duoc.ms_user.dto.AuthResponseDto;
+import cl.duoc.ms_user.dto.LoginRequestDto;
 import cl.duoc.ms_user.dto.UserRequestDto;
 import cl.duoc.ms_user.dto.UserResponseDto;
 import cl.duoc.ms_user.model.User;
 import cl.duoc.ms_user.repository.UserRepository;
+import cl.duoc.ms_user.security.JwtService;
 import cl.duoc.ms_user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+
     private UserResponseDto toDto(User user) {
         return new UserResponseDto(
                 user.getId(),
@@ -26,32 +36,35 @@ public class UserServiceImpl implements UserService {
         );
     }
 
-    private User toEntity(UserRequestDto dto){
-        return new User(null, dto.getEmail(),dto.getUsername(), dto.getPassword(), LocalDateTime.now(),"Active",1);
+    private User toEntity(UserRequestDto dto) {
+        return new User(null, dto.getEmail(), dto.getUsername(), dto.getPassword(),
+                LocalDateTime.now(), "ACTIVE", 1);
     }
 
     @Override
     public UserResponseDto register(UserRequestDto dto) {
         log.info("Register User");
         if (repository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new RuntimeException("El email ya existe");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "El email ya existe");
         }
 
         User newUser = this.toEntity(dto);
+        newUser.setPassword(passwordEncoder.encode(dto.getPassword()));
         return this.toDto(repository.save(newUser));
     }
 
     @Override
-    public UserResponseDto login(UserRequestDto dto) {
+    public AuthResponseDto login(LoginRequestDto dto) {
         log.info("Login User");
         User user = repository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new RuntimeException("Email ingresado inválido"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales inválidas"));
 
-        if (!user.getPassword().equals(dto.getPassword())) {
-            throw new RuntimeException("Contraseña ingresada inválida");
+        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales inválidas");
         }
 
-        return this.toDto(user);
+        String token = jwtService.generateToken(user);
+        return new AuthResponseDto(token, user.getId(), user.getUsername());
     }
 
     @Override
@@ -65,9 +78,10 @@ public class UserServiceImpl implements UserService {
         log.info("Find User by ID {}", id);
         return repository.findById(id)
                 .map(this::toDto)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
     }
 
+    @Override
     public List<UserResponseDto> findByAccountStatus(String accountStatus) {
         List<UserResponseDto> users = repository.findByAccountStatus(accountStatus)
                 .stream()
@@ -75,41 +89,41 @@ public class UserServiceImpl implements UserService {
                 .toList();
 
         if (users.isEmpty()) {
-            throw new RuntimeException("No hay cuentas con el estado '" + accountStatus + "'");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No hay cuentas con el estado '" + accountStatus + "'");
         }
 
         return users;
-
     }
 
+    @Override
     public UserResponseDto findByEmail(String email) {
-        return repository.findByEmail(email).map(this::toDto).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        return repository.findByEmail(email).map(this::toDto)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
     }
 
     @Override
     public UserResponseDto updateEmail(Long id, String newEmail) {
-        log.info("Update User by ID {}", id);
+        log.info("Update User email by ID {}", id);
         User user = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
         user.setEmail(newEmail);
         return toDto(repository.save(user));
     }
 
     @Override
     public UserResponseDto updatePassword(Long id, String newPassword) {
-        log.info("Update User by ID {}", id);
+        log.info("Update User password by ID {}", id);
         User user = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        user.setPassword(newPassword);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+        user.setPassword(passwordEncoder.encode(newPassword));
         return toDto(repository.save(user));
     }
 
-
     @Override
     public UserResponseDto updateAccountStatus(Long id, String newStatus) {
-        log.info("Update User by ID {}", id);
+        log.info("Update User status by ID {}", id);
         User user = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
         user.setAccountStatus(newStatus);
         return toDto(repository.save(user));
     }
@@ -118,9 +132,8 @@ public class UserServiceImpl implements UserService {
     public void deleteById(Long id) {
         log.info("Delete User by ID {}", id);
         if (!repository.existsById(id)) {
-            throw new RuntimeException("Usuario con ID " + id + " no encontrado");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario con ID " + id + " no encontrado");
         }
         repository.deleteById(id);
     }
-
 }
